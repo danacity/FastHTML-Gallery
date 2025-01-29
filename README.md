@@ -36,6 +36,7 @@ BASE_CONFIG = {
     'animations_off': 'Turn On Animations'                 # Text when animations are off
 }
 ```
+and add `IsMainRepo = false` in the metadata.ini of any of the items you want to show up in your personal gallery.  
 
 ## Running
 
