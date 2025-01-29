@@ -1,6 +1,6 @@
 # FastHTML-Gallery Theme
 
-This is a fork of the amazing [FastHTML-Gallery](https://github.com/AnswerDotAI/FastHTML-Gallery) by Isaac Flath and AnswerDotAI team. The goal fo this project was to allows FastHTML developers to showcase their components alongside community examples on their own blog or website. This way people that find your work can easiely see the work of the community. 
+This is a fork of the amazing [FastHTML-Gallery](https://github.com/AnswerDotAI/FastHTML-Gallery) by Isaac Flath and AnswerDotAI team. The goal for this project was to allows FastHTML developers to showcase their components alongside community examples on their own blog or website. This way people that find your work can easiely see the work of the community. 
 
 ## Why This Fork?
 
@@ -56,7 +56,7 @@ python main.py
     + The root route will be what is shown in the gallery
 4. Add necessary metadata:
     + `card_thumbnail.png` and `card_thumbnail.gif` for the main page card
-    + **Tip**: Add extra padding on the sides of your thumbnail images to ensure they display properly in the fixed-size cards. The cards maintain a 100% width and 350px height with object-fit:cover, so images without padding may appear cropped
+    + **Tip**: Add extra padding on the sides of your thumbnails and gifs so they display properly if you don't they may appear cropped, you might also need to clear your browers cached images and files
     + `metadata.ini` with component information
     + `info.md` (optional for examples, required for apps) for additional documentation
 5. Run `python main.py` and verify everything looks correct
