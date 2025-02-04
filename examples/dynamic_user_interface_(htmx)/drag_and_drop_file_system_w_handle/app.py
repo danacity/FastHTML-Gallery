@@ -3,7 +3,7 @@ from monsterui.all import *
 
 hdrs = Theme.blue.headers()
 
-app, rt = fast_app(hdrs=hdrs, live=True)
+app, rt = fast_app(hdrs=hdrs)
 
 @rt
 def index():

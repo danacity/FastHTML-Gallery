@@ -51,7 +51,7 @@ toggle_script = Script("""
 
 application_routes = [Mount(f"/app/{get_route(root)}", import_module(get_module_path(root,'examples')).app) for root, dirs, files in os.walk('examples') if 'app.py' in files]
 
-# descr = 'A gallery of FastHTML components... (Version 1 leftover, not used in Version 2)'
+descr = 'A gallery of FastHTML components... (Version 1 leftover, not used in Version 2)'
 
 hdrs = (
     *Socials(title='FastHTML Gallery', description=descr, site_name='gallery.fastht.ml', twitter_site='@isaac_flath', image=f'/social.png', url=''),

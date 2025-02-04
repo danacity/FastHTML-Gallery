@@ -1,8 +1,11 @@
 from fasthtml.common import *
 from monsterui.all import *
 
-hdrs = Theme.blue.headers()
-app, rt = fast_app(hdrs=hdrs, live=True)
+hdrs = Theme.blue.headers() + [
+    Script(src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/Sortable.min.js")
+]
+
+app, rt = fast_app(hdrs=hdrs)
 
 def make_folder(name, items=None):
     return Div(
@@ -43,13 +46,25 @@ def toggle_nav(show: str):
         cls="sortable"
     )
     
+    nav_container = NavContainer(
+        NavHeaderLi("File System"),
+        file_system,
+        uk_nav=True,
+        cls="bg-card p-4 w-64 min-h-screen border-r"
+    ) if show else ''
+    
     return Div(
-        NavContainer(
-            NavHeaderLi("File System"),
-            file_system,
-            uk_nav=True,
-            cls="bg-card p-4 w-64 min-h-screen border-r"
-        ) if show else '',
+        nav_container,
+        Script("""
+            new Sortable(document.querySelector('.sortable'), {
+                group: 'nested',
+                animation: 150,
+                fallbackOnBody: true,
+                swapThreshold: 0.65,
+                ghostClass: 'opacity-50',
+                handle: '.handle'
+            });
+        """, type='module'),
         id="nav-content"
     )
 
@@ -69,17 +84,6 @@ def index():
             DivCentered(id="nav-content"),
             cls="flex"
         ),
-        Script("""
-            import Sortable from 'https://cdn.jsdelivr.net/npm/sortablejs@1.15.0/modular/sortable.esm.js';
-            proc_htmx('.sortable', e => Sortable.create(e, {
-                group: 'nested',
-                animation: 150,
-                fallbackOnBody: true,
-                swapThreshold: 0.65,
-                ghostClass: 'opacity-50',
-                handle: '.handle'
-            }));
-        """, type='module'),
         cls="min-h-screen flex flex-col"
     )
 
