@@ -5,62 +5,6 @@ from pathlib import Path
 from importlib import import_module
 from monsterui.all import *
 
-def get_route(p): return '/'.join(Path(p).parts[1:])
-def get_module_path(p,base_dir): return f'{base_dir}.{".".join(Path(p).parts[1:])}.app'
-
-application_routes = [Mount(f"/app/{get_route(root)}", import_module(get_module_path(root,'examples')).app) for root, dirs, files in os.walk('examples') if 'app.py' in files]
-
-# descr = 'A gallery of FastHTML components... (Version 1 leftover, not used in Version 2)'
-
-HLJS_THEMES = {
-    'dark': 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/atom-one-dark.css',
-    'light': 'https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/styles/atom-one-light.css'}
-
-hjs = (
-    # Basic highlight.js setup
-    Script(src='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/highlight.min.js'),
-    Script(src='https://cdn.jsdelivr.net/gh/highlightjs/cdn-release/build/languages/python.min.js'),
-    
-    # Copy button setup
-    Script(src='https://cdn.jsdelivr.net/gh/arronhunt/highlightjs-copy/dist/highlightjs-copy.min.js'),
-    Link(rel='stylesheet', href='https://cdn.jsdelivr.net/gh/arronhunt/highlightjs-copy/dist/highlightjs-copy.min.css'),
-    Style('''
-        .hljs-copy-button { background-color: #2d2b57; }
-        html.dark .hljs-copy-button { background-color: #e0e0e0; color: #2d2b57; }
-    '''),
-    
-    # Theme stylesheets
-    Link(rel='stylesheet', href=HLJS_THEMES['dark'], id='hljs-dark-theme', disabled=True),
-    Link(rel='stylesheet', href=HLJS_THEMES['light'], id='hljs-light-theme', disabled=True),
-    
-    # Theme switching logic
-    Script('''
-        function updateCodeTheme() {
-            const isDark = document.documentElement.classList.contains('dark');
-            document.getElementById('hljs-dark-theme').disabled = !isDark;
-            document.getElementById('hljs-light-theme').disabled = isDark;
-        }
-        
-        // Watch for theme changes
-        new MutationObserver(mutations => {
-            mutations.forEach(mutation => {
-                if (mutation.target.tagName === 'HTML' && mutation.attributeName === 'class') {
-                    updateCodeTheme();
-                }
-            });
-        }).observe(document.documentElement, { attributes: true });
-        
-        // Initial setup
-        document.addEventListener('DOMContentLoaded', updateCodeTheme);
-    '''),
-    # Highlight.js initialization
-    Script('''
-        hljs.configure({ ignoreUnescapedHTML: true });
-        hljs.addPlugin(new CopyButtonPlugin());
-        htmx.onLoad(hljs.highlightAll);
-    ''', type='module'),
-)
-
 BASE_CONFIG = {
     'author_name': 'Efels',
     'base_name': 'FastHTML Gallery',
@@ -89,8 +33,32 @@ def get_button_text(is_enabled, button_type):
         key = f'{button_type}_on' if is_enabled else f'{button_type}_off'
     return BASE_CONFIG[key]
 
-hdrs = (*hjs, *Theme.blue.headers(),)
-app = FastHTML(routes=application_routes + [Mount('/files', StaticFiles(directory='.'))], hdrs=hdrs, pico=False)
+def get_route(p): return '/'.join(Path(p).parts[1:])
+def get_module_path(p,base_dir): return f'{base_dir}.{".".join(Path(p).parts[1:])}.app'
+
+toggle_script = Script("""
+    function toggleAnimations() {
+        const images = document.querySelectorAll('.card-img-top');
+        images.forEach(img => {
+            if (img.src.endsWith('.gif')) {
+                img.src = img.getAttribute('data-png');
+            } else {
+                img.setAttribute('data-png', img.src);
+                img.src = img.src.replace('card_thumbnail.png', 'card_thumbnail.gif');
+            }
+        });
+    }""")
+
+application_routes = [Mount(f"/app/{get_route(root)}", import_module(get_module_path(root,'examples')).app) for root, dirs, files in os.walk('examples') if 'app.py' in files]
+
+# descr = 'A gallery of FastHTML components... (Version 1 leftover, not used in Version 2)'
+
+hdrs = (
+    *Socials(title='FastHTML Gallery', description=descr, site_name='gallery.fastht.ml', twitter_site='@isaac_flath', image=f'/social.png', url=''),
+    toggle_script,
+    *Theme.blue.headers(highlightjs=True),)
+
+app = FastHTML(routes=application_routes+ [Mount('/files', StaticFiles(directory='.')),], hdrs=hdrs, pico=False)
 
 def NavBar(dir_path, info=True, active=''):
     nav_items = [
@@ -192,7 +160,13 @@ def SectionTable(section, show_community=True):
     section_id = f"section-{section.name}"
     rows = [TableRow(dir) for dir in sorted(section.iterdir()) if is_example_dir(dir, show_community)]
     if not rows: return None
-    return Section(Details(Summary(H1(section.name.replace('_',' ').title(), cls='mt-6 mb-4 pb-2 text-center text-3xl font-bold border-b-2 border-gray-300 cursor-pointer')), Table(Thead(Tr(map(Th, ("Component", "Description", "Actions")))), Tbody(*rows), cls=(TableT.middle, TableT.divider, TableT.hover, TableT.sm)), id=section_id, open=True), cls='py-2')
+    return Section(Details(
+            Summary(H1(section.name.replace('_',' ').title(), 
+                       cls='mt-6 mb-4 pb-2 text-center text-3xl font-bold border-b-2 border-gray-300 cursor-pointer')), 
+            Table(
+                Thead(Tr(map(Th, ("Component", "Description", "Actions")))),
+                Tbody(*rows), cls=(TableT.middle, TableT.divider, TableT.hover, TableT.sm)), 
+                id=section_id, open=True), cls='py-2')
 
 @app.get("/table")
 def table_view(show_community: bool=False, animations_on: bool=True):
