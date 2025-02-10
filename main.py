@@ -1,7 +1,7 @@
 from fasthtml.common import *
 import configparser, os
 from pathlib import Path
-# from utils import *  # (Not used in Version 2)
+from utils import * 
 from importlib import import_module
 from monsterui.all import *
 
@@ -53,8 +53,19 @@ application_routes = [Mount(f"/app/{get_route(root)}", import_module(get_module_
 
 descr = 'A gallery of FastHTML components... (Version 1 leftover, not used in Version 2)'
 
+# hdrs = (
+#     *Socials(title='FastHTML Gallery', description=descr, site_name='gallery.fastht.ml', twitter_site='@isaac_flath', image=f'/social.png', url=''),
+#     toggle_script,
+#     *Theme.blue.headers(highlightjs=True),)
+
 hdrs = (
-    *Socials(title='FastHTML Gallery', description=descr, site_name='gallery.fastht.ml', twitter_site='@isaac_flath', image=f'/social.png', url=''),
+    *interactable_elements(['horizontal']),  # Only include what we need
+    *Socials(title=get_site_config()['name'], 
+             description=BASE_CONFIG['description'], 
+             site_name=BASE_CONFIG['domain'], 
+             twitter_site=BASE_CONFIG['twitter'],
+             image=f'/social.png', 
+             url=f"https://{BASE_CONFIG['domain']}"),
     toggle_script,
     *Theme.blue.headers(highlightjs=True),)
 
@@ -73,17 +84,80 @@ def NavBar(dir_path, info=True, active=''):
             NavBarLSide(H1(f"{dir_path.name.replace('_',' ').title()}"), cls="hidden md:block"),
             NavBarRSide(NavBarNav(*nav_items)))
 
+@app.get('/code_view/{category}/{project}')
+def code_view(category: str, project: str):
+   dir_path = Path('examples')/category/project
+   code_text = (dir_path/'app.py').read_text().strip()
+   return Style("""
+       body { margin: 0; padding: 20px; }
+       .code-wrap { min-width: 1000px; }
+       pre { margin: 0; }
+   """), Div(Pre(Code(code_text, cls='language-python')), cls='code-wrap')
+
+def CustomRange(*c, cls=(), **kwargs):
+    svg = """<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="">
+      <circle cx="12" cy="12" r="12" fill="#9ca3af"/>
+      <line x1="12" x2="12" y1="3" y2="21"></line>
+      <polyline points="8 8 4 12 8 16"></polyline>
+      <polyline points="16 16 20 12 16 8"></polyline>
+    </svg>"""
+    
+    data_url = f"data:image/svg+xml;base64,{base64.b64encode(svg.encode()).decode()}"
+    
+    custom_cls = f"""
+        h-10 my-4
+        [&::-webkit-slider-thumb]:appearance-none 
+        [&::-webkit-slider-thumb]:h-10 
+        [&::-webkit-slider-thumb]:w-10 
+        [&::-webkit-slider-thumb]:rounded-full 
+        [&::-webkit-slider-thumb]:bg-[url('{data_url}')] 
+        [&::-webkit-slider-thumb]:bg-cover
+        [&::-webkit-slider-track]:appearance-none
+        [&::-webkit-slider-track]:bg-transparent
+        [&::-webkit-slider-track]:border-0
+        appearance-none
+        bg-transparent
+        border-0
+        outline-0
+        focus:outline-none
+        focus:ring-0
+        focus:border-0
+    """
+    return Input(*c, cls=(custom_cls, cls), type='range', **kwargs)
+
 @app.get('/split/{category}/{project}')
 def split_view(category: str, project: str):
     dir_path = Path('examples')/category/project
-    code_text = (dir_path/'app.py').read_text().strip()
     info = (dir_path/'info.md').exists()
+    
     return (
         NavBar(dir_path, info=info, active='split'),
         Title(f"{dir_path.name} - Split View"),
-            Grid(Div(Pre(Code(code_text, cls='language-python'))),
-                Div(Iframe(src=f"/app/{category}/{project}/",style="width: 100%; height: 100%; border: none;")),
-                cols_sm=1, cols_md=1, cols_lg=2))
+        Div(
+            Div(Iframe(src=f"/code_view/{category}/{project}/",
+                      style="width: 100%; height: 100%; border: none;"), 
+                id="code-section",
+                style="height: calc(90vh); width: 50%; overflow: auto;"),  
+            Div(Iframe(src=f"/app/{category}/{project}/",
+                      style="width: 100%; height: calc(90vh); border: none;"),
+                id="preview-section",
+                style="height: calc(90vh); width: 50%;"),
+            style="display: flex; width: 100%;"),
+        Div(
+            Div(CustomRange(min=20, max=80, value=50,
+                     cls="w-full h-4 cursor-pointer [&::-webkit-slider-thumb]:w-8  [&::-webkit-slider-thumb]:h-8 [&::-webkit-slider-thumb]:rounded-full [&::-webkit-slider-thumb]:bg-gray-500",
+                     oninput="updateSplit(this.value)"),
+                style="width: 60%; margin: 0 20%;"),
+            style="position: fixed; bottom: 0; left: 0; right: 0; margin: 0;",
+            cls="mt-0 space-y-0"
+        ),
+        Script("""
+            function updateSplit(value) {
+                document.getElementById('code-section').style.width = value + '%';
+                document.getElementById('preview-section').style.width = (100 - value) + '%';
+            }
+        """),
+    )
 
 @app.get('/code/{category}/{project}')
 def application_code(category:str, project:str):
