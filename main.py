@@ -49,6 +49,7 @@ toggle_script = Script("""
         });
     }""")
 
+
 application_routes = [Mount(f"/app/{get_route(root)}", import_module(get_module_path(root,'examples')).app) for root, dirs, files in os.walk('examples') if 'app.py' in files]
 
 descr = 'A gallery of FastHTML components... (Version 1 leftover, not used in Version 2)'
@@ -94,8 +95,9 @@ def code_view(category: str, project: str):
        pre { margin: 0; }
    """), Div(Pre(Code(code_text, cls='language-python')), cls='code-wrap')
 
+
 def CustomRange(*c, cls=(), **kwargs):
-    svg = """<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="">
+    svg = """<svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="">
       <circle cx="12" cy="12" r="12" fill="#9ca3af"/>
       <line x1="12" x2="12" y1="3" y2="21"></line>
       <polyline points="8 8 4 12 8 16"></polyline>
