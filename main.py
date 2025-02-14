@@ -85,6 +85,15 @@ def NavBar(dir_path, info=True, active=''):
             NavBarLSide(H1(f"{dir_path.name.replace('_',' ').title()}"), cls="hidden md:block"),
             NavBarRSide(NavBarNav(*nav_items)))
 
+# @app.get('/code_view/{category}/{project}')
+# def code_view(category: str, project: str):
+#    dir_path = Path('examples')/category/project
+#    code_text = (dir_path/'app.py').read_text().strip()
+#    return Style("""
+#        body { margin: 0; padding: 20px; }
+#        .code-wrap { min-width: 1000px; }
+#        pre { margin: 0; }
+#    """), Div(Pre(Code(code_text, cls='language-python')), cls='code-wrap')
 @app.get('/code_view/{category}/{project}')
 def code_view(category: str, project: str):
    dir_path = Path('examples')/category/project
@@ -93,7 +102,7 @@ def code_view(category: str, project: str):
        body { margin: 0; padding: 20px; }
        .code-wrap { min-width: 1000px; }
        pre { margin: 0; }
-   """), Div(Pre(Code(code_text, cls='language-python')), cls='code-wrap')
+   """), (Div(Pre(Code(code_text, cls='language-python')), cls='code-wrap'))
 
 
 def CustomRange(*c, cls=(), **kwargs):
@@ -130,16 +139,20 @@ def CustomRange(*c, cls=(), **kwargs):
 @app.get('/split/{category}/{project}')
 def split_view(category: str, project: str):
     dir_path = Path('examples')/category/project
+    code_text = (dir_path/'app.py').read_text().strip()
     info = (dir_path/'info.md').exists()
     
     return (
         NavBar(dir_path, info=info, active='split'),
         Title(f"{dir_path.name} - Split View"),
         Div(
-            Div(Iframe(src=uri(f"/code_view/{category}/{project}/"),
-                      style="width: 100%; height: 100%; border: none;"), 
+            # Div(Iframe(src=f"/code_view/{category}/{project}/",
+            #           style="width: 100%; height: 100%; border: none;"), 
+            #     id="code-section",
+            #     style="height: calc(90vh); width: 50%; overflow: auto;"),             
+            Div(Pre(Code(code_text, cls='language-python')),
                 id="code-section",
-                style="height: calc(90vh); width: 50%; overflow: auto;"),  
+                style="height: calc(90vh); width: 50%; overflow: auto; overflow-x: auto; overflow-y: auto; resize: none; white-space: pre;"),
             Div(Iframe(src=f"/app/{category}/{project}/",
                       style="width: 100%; height: calc(90vh); border: none;"),
                 id="preview-section",
