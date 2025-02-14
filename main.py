@@ -97,7 +97,7 @@ def code_view(category: str, project: str):
 
 
 def CustomRange(*c, cls=(), **kwargs):
-    svg = """<svg xmlns="https://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="">
+    svg = """<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="">
       <circle cx="12" cy="12" r="12" fill="#9ca3af"/>
       <line x1="12" x2="12" y1="3" y2="21"></line>
       <polyline points="8 8 4 12 8 16"></polyline>
@@ -136,7 +136,7 @@ def split_view(category: str, project: str):
         NavBar(dir_path, info=info, active='split'),
         Title(f"{dir_path.name} - Split View"),
         Div(
-            Div(Iframe(src=f"/code_view/{category}/{project}/",
+            Div(Iframe(src=uri(f"/code_view/{category}/{project}/"),
                       style="width: 100%; height: 100%; border: none;"), 
                 id="code-section",
                 style="height: calc(90vh); width: 50%; overflow: auto;"),  
