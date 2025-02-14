@@ -12,7 +12,7 @@ numpy
 fastcore
 requests
 seaborn
-monsterui ==0.0.32
+monsterui==0.0.32
 markdown2
 mistletoe
 lxml
