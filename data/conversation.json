@@ -1,0 +1,16 @@
+{
+    "messages": [
+        {
+            "role": "user",
+            "content": "I need help with my code:\n```python\nprint('Hello World\"\n```"
+        },
+        {
+            "role": "assistant",
+            "content": "I see the issue. You have a **mismatched quote**. Here's the corrected version:\n```python\nprint('Hello World')\n```\n let me know if you need help with anything else."
+        },
+        {
+            "role": "user",
+            "content": "Thanks! That *fixed* it!"
+        }
+    ]
+}
